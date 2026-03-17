@@ -31,3 +31,411 @@ body {
   transition: all 0.15s;
 }
 .day-tab.active { border-color: #888; color: #1a1a18; background: #fff; font-weight: 600; }
+
+.progress-bar-wrap { margin-bottom: 1.25rem; }
+.progress-label { font-size: 12px; color: #888780; margin-bottom: 6px; }
+.progress-bar { height: 4px; background: #e0dfd8; border-radius: 2px; }
+.progress-fill { height: 100%; background: #1D9E75; border-radius: 2px; transition: width 0.3s; }
+
+.meetings-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+
+.meeting-card {
+  border: 0.5px solid #ddd;
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+.meeting-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; cursor: pointer; user-select: none;
+}
+.meeting-header:hover { background: #f9f9f7; }
+.time-badge {
+  font-size: 11px; font-weight: 500; padding: 3px 8px;
+  border-radius: 8px; background: #f1efe8; color: #888780;
+  white-space: nowrap; min-width: 48px; text-align: center;
+}
+.meeting-name { font-size: 14px; font-weight: 500; flex: 1; color: #1a1a18; }
+.meeting-contact { font-size: 12px; color: #888780; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+.status-dot.filled { background: #1D9E75; }
+.status-dot.partial { background: #EF9F27; }
+.chevron { font-size: 11px; color: #aaa; transition: transform 0.2s; }
+.chevron.open { transform: rotate(180deg); }
+
+.meeting-body { padding: 14px 16px; border-top: 0.5px solid #eee; display: none; }
+.meeting-body.open { display: block; }
+
+.field-row { margin-bottom: 14px; }
+.field-label { font-size: 12px; color: #888780; margin-bottom: 6px; display: block; }
+
+.stars { display: flex; gap: 4px; margin-bottom: 4px; }
+.star { font-size: 22px; cursor: pointer; color: #ddd; line-height: 1; transition: color 0.1s; }
+.star.on { color: #EF9F27; }
+
+.tags-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  padding: 4px 10px; border-radius: 20px; font-size: 12px; cursor: pointer;
+  border: 0.5px solid #ccc; color: #5f5e5a; background: #fff; transition: all 0.12s;
+}
+.tag.selected { border-color: #1D9E75; color: #085041; background: #E1F5EE; }
+
+textarea {
+  width: 100%; min-height: 72px; resize: vertical;
+  border: 0.5px solid #ccc; border-radius: 8px;
+  padding: 8px 10px; font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #fff; color: #1a1a18; line-height: 1.5;
+}
+textarea:focus { outline: none; border-color: #888; }
+textarea::placeholder { color: #bbb; }
+
+.follow-up-row { display: flex; align-items: center; gap: 8px; }
+.follow-up-row input[type=checkbox] { cursor: pointer; width: 15px; height: 15px; accent-color: #1D9E75; }
+.follow-up-row label { font-size: 13px; color: #5f5e5a; cursor: pointer; }
+
+.actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 1rem; }
+button {
+  padding: 8px 18px; border-radius: 8px;
+  border: 0.5px solid #ccc; background: #fff;
+  color: #1a1a18; cursor: pointer; font-size: 13px;
+  font-family: inherit; transition: background 0.12s;
+}
+button:hover { background: #f5f5f3; }
+button.primary { border-color: #888; font-weight: 500; }
+button.export-btn { border-color: #185FA5; color: #185FA5; }
+button.export-btn:hover { background: #E6F1FB; }
+
+.note-badge {
+  font-size: 11px; padding: 2px 7px; border-radius: 10px;
+  background: #f1efe8; color: #888780; margin-left: 6px;
+}
+
+.email-output {
+  margin-top: 1.5rem; display: none;
+  border: 0.5px solid #ccc; border-radius: 12px; overflow: hidden;
+}
+.email-output.visible { display: block; }
+.email-header {
+  padding: 10px 16px; background: #f5f5f3;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 0.5px solid #eee;
+}
+.email-header span { font-size: 13px; font-weight: 500; }
+.email-body {
+  padding: 16px; font-size: 13px; white-space: pre-wrap; line-height: 1.7;
+  color: #1a1a18; max-height: 480px; overflow-y: auto;
+  font-family: 'Courier New', monospace; background: #fafafa;
+}
+.copy-btn { font-size: 12px; padding: 4px 12px; }
+
+.separator { height: 1px; background: #eee; margin: 1.5rem 0; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div>
+      <div class="logo"><span>LATIN</span> SECURITIES</div>
+      <div class="subtitle">Roadshow Brasil — Marzo 2026 · Feedback interno</div>
+    </div>
+  </div>
+
+  <div class="day-tabs" id="dayTabs"></div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-label" id="progressLabel">0 de 0 reuniones completadas</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="meetings-list" id="meetingsList"></div>
+
+  <div class="actions">
+    <button class="export-btn" onclick="exportTxt()">Exportar .txt</button>
+    <button onclick="clearAll()">Limpiar todo</button>
+  </div>
+
+  <div class="email-output visible" id="emailOutput">
+    <div class="email-header">
+      <span id="emailHeaderLabel">Email interno — se actualiza automáticamente</span>
+      <button class="copy-btn" onclick="copyEmail()">Copiar</button>
+    </div>
+    <div class="email-body" id="emailBody"></div>
+  </div>
+</div>
+
+<script>
+const days = [
+  {
+    label: "Lun 16/3 — SP", city: "São Paulo",
+    meetings: [
+      { time:"08:00", firm:"Newfoundland", contact:"Henrique Reis", role:"Equities Analyst" },
+      { time:"09:30", firm:"Arc Capital", contact:"Demian Pons", role:"Partner" },
+      { time:"11:00", firm:"Exploritas", contact:"Daniel Marcatto / Daniel Delabio", role:"LATAM Equities / PM" },
+      { time:"12:30", firm:"RPS", contact:"Paolo di Sora", role:"PM", note:"Almuerzo" },
+      { time:"14:00", firm:"Capsigma", contact:"Emerson Leite / Luis Campos", role:"Founding Partner / PM" },
+      { time:"15:30", firm:"Fit Participações", contact:"Antonio Prado", role:"Managing Partner" },
+      { time:"17:00", firm:"Ibiuna", contact:"Thiago Siniscarchio", role:"Macro Funds Analyst" },
+      { time:"18:30", firm:"ASA", contact:"Fabio Okumura", role:"Head" },
+      { time:"20:30", firm:"BTG Pactual", contact:"Jose Tolipan", role:"Associate Partner", note:"Cena" }
+    ]
+  },
+  {
+    label: "Mar 17/3 — SP", city: "São Paulo",
+    meetings: [
+      { time:"08:00", firm:"UBS Corretora", contact:"Andre Bannwart", role:"Head of UBS Evolution" },
+      { time:"09:30", firm:"Spinnaker", contact:"Pedro Siqueira", role:"PM" },
+      { time:"11:00", firm:"Fourth Sail", contact:"Lucas Canteras", role:"Equity Analyst" },
+      { time:"12:30", firm:"Onyx", contact:"Thiago Albuquerque", role:"Equities Analyst, Partner", note:"Almuerzo" },
+      { time:"14:00", firm:"Trigono", contact:"Romulo Bredt", role:"Head & Credit Portfolio Manager" },
+      { time:"15:30", firm:"WHG", contact:"Joao Lorenzi", role:"Global Equities, Commodities & EM" },
+      { time:"17:00", firm:"Norte AM", contact:"Gustavo Salomao", role:"PM" },
+      { time:"20:00", firm:"BTG Pactual", contact:"Bruno Barbosa", role:"PM", note:"Cena" }
+    ]
+  },
+  {
+    label: "Mié 18/3 — SP", city: "São Paulo",
+    meetings: [
+      { time:"08:00", firm:"Carrhae Capital", contact:"Rodson Heringer", role:"Partner", note:"Desayuno" },
+      { time:"09:30", firm:"Vinci", contact:"Alexandre Ataide", role:"PM" },
+      { time:"11:00", firm:"Logos Capital", contact:"Ricardo Cruz Gouveia Vieira", role:"Partner" },
+      { time:"12:30", firm:"Goldman Sachs", contact:"Antonio Lellis / Joao Mingo", role:"MD / Latam Synthetic Trader", note:"Almuerzo" },
+      { time:"14:00", firm:"Moneda Patria", contact:"William Leite", role:"Equities PM" },
+      { time:"15:30", firm:"Goldman Sachs AM", contact:"Marcia Zugaib", role:"Analyst" }
+    ]
+  },
+  {
+    label: "Jue 19/3 — RJ", city: "Río de Janeiro",
+    meetings: [
+      { time:"09:30", firm:"SPX Capital", contact:"Luiz Madoreira", role:"Macroeconomic Research Analyst" },
+      { time:"11:00", firm:"Vista Capital", contact:"Daniel Cuzzi", role:"Analyst" },
+      { time:"12:30", firm:"Paragon Capital", contact:"Gabriel Coelho", role:"Partner & Economist" },
+      { time:"14:00", firm:"BTG", contact:"Fabio Lemos", role:"Financial Advisor, Rio Capital Inv." }
+    ]
+  }
+];
+
+const interestTags = ["Argentina equities","Argentina soberanos","Argentina corporates","EM FX","Commodities","Macro LATAM","Renta fija","Otros"];
+const sentimentLabels = ["","Muy fría","Fría","Neutral","Interesada","Muy interesada"];
+
+let state = {};
+let currentDay = 0;
+
+function getKey(di, mi) { return `${di}_${mi}`; }
+
+function initState() {
+  days.forEach((d, di) => d.meetings.forEach((m, mi) => {
+    const k = getKey(di, mi);
+    if (!state[k]) state[k] = { stars:0, tags:[], notes:'', followUp:false, open:false };
+  }));
+}
+
+function isFilled(k) {
+  const s = state[k];
+  return s.stars > 0 || s.tags.length > 0 || s.notes.trim().length > 0;
+}
+function isComplete(k) {
+  const s = state[k];
+  return s.stars > 0 && (s.tags.length > 0 || s.notes.trim().length > 0);
+}
+
+function getProgress() {
+  let total = 0, done = 0;
+  days.forEach((d, di) => d.meetings.forEach((m, mi) => {
+    total++;
+    if (isComplete(getKey(di, mi))) done++;
+  }));
+  return { total, done };
+}
+
+function renderDayTabs() {
+  document.getElementById('dayTabs').innerHTML = days.map((d, i) =>
+    `<div class="day-tab ${i===currentDay?'active':''}" onclick="switchDay(${i})">${d.label}</div>`
+  ).join('');
+}
+
+function switchDay(i) {
+  currentDay = i;
+  renderDayTabs();
+  renderMeetings();
+}
+
+function renderMeetings() {
+  const d = days[currentDay];
+  document.getElementById('meetingsList').innerHTML = d.meetings.map((m, mi) => {
+    const k = getKey(currentDay, mi);
+    const s = state[k];
+    const complete = isComplete(k), filled = isFilled(k);
+    const dotClass = complete ? 'filled' : (filled ? 'partial' : '');
+    const noteBadge = m.note ? `<span class="note-badge">${m.note}</span>` : '';
+    return `
+    <div class="meeting-card" id="card_${k}">
+      <div class="meeting-header" onclick="toggleCard('${k}')">
+        <span class="time-badge">${m.time}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
+            <span class="meeting-name">${m.firm}</span>${noteBadge}
+          </div>
+          <div class="meeting-contact">${m.contact} · ${m.role}</div>
+        </div>
+        <span class="status-dot ${dotClass}"></span>
+        <span class="chevron ${s.open?'open':''}">▼</span>
+      </div>
+      <div class="meeting-body ${s.open?'open':''}" id="body_${k}">
+        <div class="field-row">
+          <span class="field-label">Interés / Recepción</span>
+          <div class="stars" id="stars_${k}">
+            ${[1,2,3,4,5].map(n=>`<span class="star ${s.stars>=n?'on':''}" onclick="setStar('${k}',${n})">★</span>`).join('')}
+          </div>
+          <span id="slabel_${k}" style="font-size:11px;color:#aaa;">${sentimentLabels[s.stars]||''}</span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Temas de interés</span>
+          <div class="tags-row">
+            ${interestTags.map(t=>`<span class="tag ${s.tags.includes(t)?'selected':''}" onclick="toggleTag('${k}','${t}')">${t}</span>`).join('')}
+          </div>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Notas / Comentarios</span>
+          <textarea placeholder="Puntos clave discutidos, preguntas planteadas, impresión general..." oninput="setNotes('${k}', this.value)">${s.notes}</textarea>
+        </div>
+        <div class="follow-up-row">
+          <input type="checkbox" id="fu_${k}" ${s.followUp?'checked':''} onchange="setFollowUp('${k}', this.checked)">
+          <label for="fu_${k}">Requiere follow-up</label>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  updateProgress();
+}
+
+function updateProgress() {
+  const { total, done } = getProgress();
+  document.getElementById('progressLabel').textContent = `${done} de ${total} reuniones completadas`;
+  document.getElementById('progressFill').style.width = total ? (done/total*100)+'%' : '0%';
+}
+
+function toggleCard(k) {
+  state[k].open = !state[k].open;
+  const body = document.getElementById('body_'+k);
+  const chev = document.querySelector('#card_'+k+' .chevron');
+  if (body) body.classList.toggle('open', state[k].open);
+  if (chev) chev.classList.toggle('open', state[k].open);
+}
+
+function setStar(k, n) {
+  state[k].stars = n;
+  document.querySelectorAll('#stars_'+k+' .star').forEach((s,i) => s.classList.toggle('on', i<n));
+  const lbl = document.getElementById('slabel_'+k);
+  if (lbl) lbl.textContent = sentimentLabels[n]||'';
+  updateDot(k); updateProgress();
+  refreshEmailIfVisible();
+}
+
+function toggleTag(k, tag) {
+  const idx = state[k].tags.indexOf(tag);
+  if (idx > -1) state[k].tags.splice(idx,1);
+  else state[k].tags.push(tag);
+  document.querySelectorAll('#body_'+k+' .tag').forEach(t =>
+    t.classList.toggle('selected', state[k].tags.includes(t.textContent))
+  );
+  updateDot(k); updateProgress();
+  refreshEmailIfVisible();
+}
+
+function setNotes(k, val) {
+  state[k].notes = val;
+  updateDot(k); updateProgress();
+  refreshEmailIfVisible();
+}
+
+function setFollowUp(k, val) {
+  state[k].followUp = val;
+  refreshEmailIfVisible();
+}
+
+function updateDot(k) {
+  const dot = document.querySelector('#card_'+k+' .status-dot');
+  if (!dot) return;
+  dot.className = 'status-dot' + (isComplete(k) ? ' filled' : (isFilled(k) ? ' partial' : ''));
+}
+
+function buildEmailText() {
+  let lines = [];
+  lines.push("Asunto: Feedback Roadshow Brasil — Marzo 2026\n");
+  lines.push("Hola equipo,\n\nA continuación el resumen de feedback del Roadshow Brasil (15–19 marzo 2026).\n");
+  let hasAny = false;
+  days.forEach((d, di) => {
+    const dayLines = [];
+    d.meetings.forEach((m, mi) => {
+      const k = getKey(di, mi);
+      const s = state[k];
+      if (!isFilled(k)) return;
+      hasAny = true;
+      let entry = `  • ${m.time} — ${m.firm} (${m.contact})`;
+      entry += `\n    Interés: ${'★'.repeat(s.stars)}${'☆'.repeat(5-s.stars)}  ${sentimentLabels[s.stars]||''}`;
+      if (s.tags.length) entry += `\n    Temas: ${s.tags.join(', ')}`;
+      if (s.notes.trim()) entry += `\n    Notas: ${s.notes.trim()}`;
+      if (s.followUp) entry += `\n    → Follow-up pendiente`;
+      dayLines.push(entry);
+    });
+    if (dayLines.length) {
+      lines.push(`── ${d.label.toUpperCase()} ──`);
+      lines.push(dayLines.join('\n\n'));
+      lines.push('');
+    }
+  });
+  if (!hasAny) lines.push('  (Sin feedback cargado aún)');
+  const { total, done } = getProgress();
+  lines.push(`\nTotal reuniones con feedback: ${done}/${total}`);
+  lines.push("\nSaludos,\nLatin Securities");
+  return lines.join('\n');
+}
+
+function generateEmail() {
+  document.getElementById('emailBody').textContent = buildEmailText();
+  document.getElementById('emailOutput').classList.add('visible');
+  document.getElementById('emailOutput').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function refreshEmailIfVisible() {
+  document.getElementById('emailBody').textContent = buildEmailText();
+  const { done } = getProgress();
+  document.getElementById('emailHeaderLabel').textContent =
+    done === 0 ? 'Email interno — completá reuniones para ver el output' :
+    `Email interno — ${done} reunión${done>1?'es':''} incluida${done>1?'s':''} (se actualiza solo)`;
+}
+
+function copyEmail() {
+  navigator.clipboard.writeText(document.getElementById('emailBody').textContent).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copiado ✓';
+    setTimeout(() => btn.textContent = 'Copiar', 2000);
+  });
+}
+
+function exportTxt() {
+  const text = buildEmailText();
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'feedback_roadshow_brasil_marzo2026.txt';
+  a.click();
+}
+
+function clearAll() {
+  if (!confirm('¿Borrar todos los feedbacks ingresados?')) return;
+  Object.keys(state).forEach(k => { state[k] = { stars:0, tags:[], notes:'', followUp:false, open:false }; });
+  renderMeetings();
+  refreshEmailIfVisible();
+}
+
+initState();
+renderDayTabs();
+renderMeetings();
+refreshEmailIfVisible();
+</script>
+</body>
+</html>
+</body>
+</html>
